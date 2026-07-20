@@ -1,3 +1,8 @@
 <Solution>
-  <Project Path="EnterpriseAppAI/EnterpriseAppAI.csproj" />
+  <Project Path="EnterpriseAppAI.Application/EnterpriseAppAI.Application.csproj" Id="0e463207-f838-47d9-9f5f-aa510987021b" />
+  <Project Path="EnterpriseAppAI.Domain/EnterpriseAppAI.Domain.csproj" Id="4e32d905-7675-4524-a929-d8cf4a030b59" />
+  <Project Path="EnterpriseAppAI.Infrastructure/EnterpriseAppAI.Infrastructure.csproj" Id="566157f2-35a8-4d00-b261-3031bfdde455" />
+  <Project Path="EnterpriseAppAI.Shared/EnterpriseAppAI.Shared.csproj" Id="4e0a0a56-efab-478b-9a42-ab12ec3718a2" />
+  <Project Path="EnterpriseAppAI.Tests/EnterpriseAppAI.Tests.csproj" Id="486eefc5-b094-44b0-8e02-63339fb81b83" />
+  <Project Path="EnterpriseAppAI.API/EnterpriseAppAI.API.csproj" />
 </Solution>
