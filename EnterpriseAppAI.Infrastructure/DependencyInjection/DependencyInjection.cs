@@ -1,4 +1,6 @@
+using EnterpriseAppAI.Application.Interfaces.Identity;
 using EnterpriseAppAI.Application.Interfaces.Persistence;
+using EnterpriseAppAI.Infrastructure.Identity;
 using EnterpriseAppAI.Infrastructure.Persistence;
 using EnterpriseAppAI.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +25,7 @@ public static class DependencyInjection
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
         return services;
     }

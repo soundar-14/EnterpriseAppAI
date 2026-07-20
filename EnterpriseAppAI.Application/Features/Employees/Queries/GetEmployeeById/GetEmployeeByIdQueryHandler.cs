@@ -1,3 +1,4 @@
+using EnterpriseAppAI.Application.Common.Exceptions;
 using EnterpriseAppAI.Application.Features.Employees.DTOs;
 using EnterpriseAppAI.Application.Features.Employees.Mappings;
 using EnterpriseAppAI.Application.Interfaces.Persistence;
@@ -6,7 +7,7 @@ using MediatR;
 
 namespace EnterpriseAppAI.Application.Features.Employees.Queries.GetEmployeeById;
 
-public class GetEmployeeByIdQueryHandler : IRequestHandler<GetEmployeeByIdQuery, EmployeeDto?>
+public class GetEmployeeByIdQueryHandler : IRequestHandler<GetEmployeeByIdQuery, EmployeeDto>
 {
     private readonly IUnitOfWork _unitOfWork;
 
@@ -15,10 +16,10 @@ public class GetEmployeeByIdQueryHandler : IRequestHandler<GetEmployeeByIdQuery,
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<EmployeeDto?> Handle(GetEmployeeByIdQuery request, CancellationToken cancellationToken)
+    public async Task<EmployeeDto> Handle(GetEmployeeByIdQuery request, CancellationToken cancellationToken)
     {
         var employee = await _unitOfWork.Repository<Employee>().GetByIdAsync(request.Id, cancellationToken);
 
-        return employee?.ToDto();
+        return employee?.ToDto() ?? throw new NotFoundException(nameof(Employee), request.Id);
     }
 }
