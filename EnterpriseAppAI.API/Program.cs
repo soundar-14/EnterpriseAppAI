@@ -1,9 +1,10 @@
-using System.Text;
 using EnterpriseAppAI.API.Middleware;
 using EnterpriseAppAI.Application.DependencyInjection;
 using EnterpriseAppAI.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,8 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.MapScalarApiReference(); //
 }
 
 app.UseHttpsRedirection();
