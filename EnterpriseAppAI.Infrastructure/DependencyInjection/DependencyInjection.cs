@@ -25,6 +25,26 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
+        // Azure OpenAI options: bind configuration and validate on start (manual bind + DataAnnotations validation)
+        var azureSection = configuration.GetSection(EnterpriseAppAI.Infrastructure.AI.Options.AzureOpenAIOptions.SectionName);
+        var azureOptions = azureSection.Get<EnterpriseAppAI.Infrastructure.AI.Options.AzureOpenAIOptions>();
+        if (azureOptions == null)
+        {
+            throw new InvalidOperationException($"Configuration section '{EnterpriseAppAI.Infrastructure.AI.Options.AzureOpenAIOptions.SectionName}' is missing.");
+        }
+
+        // Validate DataAnnotations (if any are present on the options class)
+        var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(azureOptions);
+        var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+        if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(azureOptions, validationContext, validationResults, validateAllProperties: true))
+        {
+            var errors = string.Join("; ", validationResults.Select(r => r.ErrorMessage));
+            throw new InvalidOperationException($"AzureOpenAIOptions validation failed: {errors}");
+        }
+
+        // Register the validated options instance as singleton
+        services.AddSingleton(azureOptions);
+
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
