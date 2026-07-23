@@ -1,6 +1,7 @@
 using EnterpriseAppAI.Application.AI.Interfaces;
 using EnterpriseAppAI.Application.Interfaces.Identity;
 using EnterpriseAppAI.Application.Interfaces.Persistence;
+using EnterpriseAppAI.Infrastructure.AI.Options;
 using EnterpriseAppAI.Infrastructure.AI.Services;
 using EnterpriseAppAI.Infrastructure.Identity;
 using EnterpriseAppAI.Infrastructure.Persistence;
@@ -8,6 +9,10 @@ using EnterpriseAppAI.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 namespace EnterpriseAppAI.Infrastructure.DependencyInjection;
 
@@ -25,25 +30,43 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        // Azure OpenAI options: bind configuration and validate on start (manual bind + DataAnnotations validation)
-        var azureSection = configuration.GetSection(EnterpriseAppAI.Infrastructure.AI.Options.AzureOpenAIOptions.SectionName);
-        var azureOptions = azureSection.Get<EnterpriseAppAI.Infrastructure.AI.Options.AzureOpenAIOptions>();
-        if (azureOptions == null)
-        {
-            throw new InvalidOperationException($"Configuration section '{EnterpriseAppAI.Infrastructure.AI.Options.AzureOpenAIOptions.SectionName}' is missing.");
-        }
+        var azureOpenAISection = configuration.GetSection(AzureOpenAIOptions.SectionName);
 
-        // Validate DataAnnotations (if any are present on the options class)
-        var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(azureOptions);
-        var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
-        if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(azureOptions, validationContext, validationResults, validateAllProperties: true))
-        {
-            var errors = string.Join("; ", validationResults.Select(r => r.ErrorMessage));
-            throw new InvalidOperationException($"AzureOpenAIOptions validation failed: {errors}");
-        }
+        // Bind configuration to strongly typed options
+        var azureOpenAIOptions = azureOpenAISection.Get<AzureOpenAIOptions>()
+            ?? throw new InvalidOperationException(
+                $"Configuration section '{AzureOpenAIOptions.SectionName}' is missing.");
 
-        // Register the validated options instance as singleton
-        services.AddSingleton(azureOptions);
+        // Register Options Pattern
+        services
+            .AddOptions<AzureOpenAIOptions>()
+            .Bind(azureOpenAISection)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        // Register Semantic Kernel
+        services
+            .AddKernel()
+            .AddAzureOpenAIChatCompletion(
+                deploymentName: azureOpenAIOptions.ChatDeploymentName,
+                endpoint: azureOpenAIOptions.Endpoint,
+                apiKey: azureOpenAIOptions.ApiKey);
+
+
+
+        //services.AddSingleton<IChatCompletionService>(sp =>
+        //{
+        //    var options = sp
+        //        .GetRequiredService<IOptions<AzureOpenAIOptions>>()
+        //        .Value;
+
+        //    return new AzureOpenAIChatCompletionService(
+        //        deploymentName: options.ChatDeploymentName,
+        //        endpoint: options.Endpoint,
+        //        apiKey: options.ApiKey);
+        //});
+
+        services.AddScoped<IChatService, ChatService>();
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
