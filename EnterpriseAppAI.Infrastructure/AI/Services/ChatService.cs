@@ -20,14 +20,12 @@ public class ChatService : IChatService
 {
     private readonly ILogger<ChatService> _logger;
 
-    private readonly IChatCompletionService _chatCompletionService;
     private readonly Kernel _kernel;
 
 
-    public ChatService(ILogger<ChatService> logger,  IChatCompletionService chatCompletionService, Kernel kernel)
+    public ChatService(ILogger<ChatService> logger, Kernel kernel)
     {
         _logger = logger;
-        _chatCompletionService = chatCompletionService;
         _kernel = kernel;
     }
 

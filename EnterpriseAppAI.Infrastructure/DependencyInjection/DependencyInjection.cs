@@ -9,10 +9,7 @@ using EnterpriseAppAI.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 
 namespace EnterpriseAppAI.Infrastructure.DependencyInjection;
 
@@ -51,20 +48,6 @@ public static class DependencyInjection
                 deploymentName: azureOpenAIOptions.ChatDeploymentName,
                 endpoint: azureOpenAIOptions.Endpoint,
                 apiKey: azureOpenAIOptions.ApiKey);
-
-
-
-        //services.AddSingleton<IChatCompletionService>(sp =>
-        //{
-        //    var options = sp
-        //        .GetRequiredService<IOptions<AzureOpenAIOptions>>()
-        //        .Value;
-
-        //    return new AzureOpenAIChatCompletionService(
-        //        deploymentName: options.ChatDeploymentName,
-        //        endpoint: options.Endpoint,
-        //        apiKey: options.ApiKey);
-        //});
 
         services.AddScoped<IChatService, ChatService>();
 
