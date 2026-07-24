@@ -2,9 +2,12 @@ namespace EnterpriseAppAI.Infrastructure.AI.Services;
 
 using EnterpriseAppAI.Application.AI.Interfaces;
 using EnterpriseAppAI.Application.AI.Models;
+using EnterpriseAppAI.Infrastructure.AI.Plugins;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 /// <summary>
 /// ChatService orchestrates AI chat processing using Semantic Kernel.
@@ -22,12 +25,19 @@ public class ChatService : IChatService
 
     private readonly Kernel _kernel;
 
+    private readonly IServiceProvider _serviceProvider;
 
-    public ChatService(ILogger<ChatService> logger, Kernel kernel)
+    public ChatService(
+        ILogger<ChatService> logger,
+        Kernel kernel,
+        IServiceProvider serviceProvider)
     {
         _logger = logger;
         _kernel = kernel;
+        _serviceProvider = serviceProvider;
     }
+
+
 
     public async Task<ChatResponse> AskAsync(ChatRequest request, CancellationToken cancellationToken = default)
     {
@@ -53,11 +63,22 @@ public class ChatService : IChatService
         }
 
         history.AddUserMessage(request.UserMessage);
+ 
 
-        var chatCompletionService = _kernel.GetRequiredService<IChatCompletionService>();
+        _kernel.RegisterPlugins(_serviceProvider);
 
+        var executionSettings =
+            ChatExecutionSettingsFactory.Create();
 
-        var response = await chatCompletionService.GetChatMessageContentAsync(history);
+        var chatCompletionService =
+            _kernel.GetRequiredService<IChatCompletionService>();
+
+        var response =
+            await chatCompletionService.GetChatMessageContentAsync(
+                history,
+                executionSettings,
+                _kernel,
+                cancellationToken);
 
         var tokensUsed = 0;
 
