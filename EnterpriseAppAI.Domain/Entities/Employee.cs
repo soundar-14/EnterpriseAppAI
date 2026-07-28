@@ -19,4 +19,8 @@ public class Employee : BaseEntity
     public Guid DepartmentId { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    public ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
+
+    public string FullName => $"{FirstName} {LastName}";
 }

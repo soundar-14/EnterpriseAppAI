@@ -59,6 +59,7 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         NotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
         ValidationException => (StatusCodes.Status400BadRequest, "Validation error"),
+        BusinessRuleException => (StatusCodes.Status400BadRequest, "Business rule violation"),
         ConflictException => (StatusCodes.Status409Conflict, "Conflict"),
         UnauthorizedException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
         _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred")

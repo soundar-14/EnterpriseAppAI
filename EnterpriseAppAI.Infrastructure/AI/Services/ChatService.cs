@@ -3,11 +3,9 @@ namespace EnterpriseAppAI.Infrastructure.AI.Services;
 using EnterpriseAppAI.Application.AI.Interfaces;
 using EnterpriseAppAI.Application.AI.Models;
 using EnterpriseAppAI.Infrastructure.AI.Plugins;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 /// <summary>
 /// ChatService orchestrates AI chat processing using Semantic Kernel.
@@ -67,6 +65,11 @@ public class ChatService : IChatService
 
         _kernel.RegisterPlugins(_serviceProvider);
 
+        // Log loaded plugins
+        _logger.LogInformation(
+            "Plugins Loaded: {Plugins}",
+            string.Join(", ", _kernel.Plugins.Select(p => p.Name)));
+
         var executionSettings =
             ChatExecutionSettingsFactory.Create();
 
@@ -82,9 +85,9 @@ public class ChatService : IChatService
 
         var tokensUsed = 0;
 
-        if (response.Metadata?.TryGetValue("usage", out var usage) == true)
+        if (response.Metadata?.TryGetValue("Usage", out var usage) == true)
         {
-            if (usage is System.Collections.Generic.Dictionary<string, object> usageDict && usageDict.TryGetValue("total_tokens", out var tokens))
+            if (usage is System.Collections.Generic.Dictionary<string, object> usageDict && usageDict.TryGetValue("Total_tokens", out var tokens))
             {
                 tokensUsed = Convert.ToInt32(tokens);
             }

@@ -18,6 +18,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Department> Departments => Set<Department>();
 
+    public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);

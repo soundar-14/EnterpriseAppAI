@@ -1,6 +1,7 @@
 using EnterpriseAppAI.Application.AI.Interfaces;
 using EnterpriseAppAI.Application.Interfaces.Identity;
 using EnterpriseAppAI.Application.Interfaces.Persistence;
+using EnterpriseAppAI.Infrastructure.AI.Abstractions;
 using EnterpriseAppAI.Infrastructure.AI.Options;
 using EnterpriseAppAI.Infrastructure.AI.Plugins;
 using EnterpriseAppAI.Infrastructure.AI.Services;
@@ -54,8 +55,22 @@ public static class DependencyInjection
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
-        services.AddScoped<EmployeePlugin>();
+        services.AddScoped<IAIPlugin, EmployeePlugin>();
+
+        services.AddScoped<DepartmentPlugin>();
+        services.AddScoped<IAIPlugin, DepartmentPlugin>();
+
+        services.AddScoped<LeavePlugin>();
+        services.AddScoped<IAIPlugin, LeavePlugin>();
+
+        services.AddScoped<HRPlugin>();
+        services.AddScoped<IAIPlugin, HRPlugin>();
+
+        services.AddScoped<ITSupportPlugin>();
+        services.AddScoped<IAIPlugin, ITSupportPlugin>();
+        services.AddScoped<ITSupportPlugin>();
         services.AddScoped<IChatService, ChatService>();
 
         return services;
