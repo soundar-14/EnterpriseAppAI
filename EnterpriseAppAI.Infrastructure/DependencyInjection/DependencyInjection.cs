@@ -4,6 +4,8 @@ using EnterpriseAppAI.Application.Interfaces.Persistence;
 using EnterpriseAppAI.Infrastructure.AI.Abstractions;
 using EnterpriseAppAI.Infrastructure.AI.Options;
 using EnterpriseAppAI.Infrastructure.AI.Plugins;
+using EnterpriseAppAI.Infrastructure.AI.RAG.Interfaces;
+using EnterpriseAppAI.Infrastructure.AI.RAG.Services;
 using EnterpriseAppAI.Infrastructure.AI.Services;
 using EnterpriseAppAI.Infrastructure.Identity;
 using EnterpriseAppAI.Infrastructure.Persistence;
@@ -49,7 +51,13 @@ public static class DependencyInjection
             .AddAzureOpenAIChatCompletion(
                 deploymentName: azureOpenAIOptions.ChatDeploymentName,
                 endpoint: azureOpenAIOptions.Endpoint,
+                apiKey: azureOpenAIOptions.ApiKey)
+            .AddAzureOpenAITextEmbeddingGeneration(
+                deploymentName: azureOpenAIOptions.EmbeddingDeploymentName,
+                endpoint: azureOpenAIOptions.Endpoint,
                 apiKey: azureOpenAIOptions.ApiKey);
+        ;
+
 
         services.AddScoped<IChatService, ChatService>();
 
@@ -70,8 +78,10 @@ public static class DependencyInjection
 
         services.AddScoped<ITSupportPlugin>();
         services.AddScoped<IAIPlugin, ITSupportPlugin>();
-        services.AddScoped<ITSupportPlugin>();
-        services.AddScoped<IChatService, ChatService>();
+
+        services.AddScoped<IPdfReaderService, PdfReaderService>();
+        services.AddScoped<ITextChunkingService, TextChunkingService>();
+        services.AddScoped<IEmbeddingService, EmbeddingService>();
 
         return services;
     }

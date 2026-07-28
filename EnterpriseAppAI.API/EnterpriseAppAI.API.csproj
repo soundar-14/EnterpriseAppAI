@@ -21,4 +21,8 @@
     <ProjectReference Include="..\EnterpriseAppAI.Infrastructure\EnterpriseAppAI.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Documents\" />
+  </ItemGroup>
+
 </Project>
