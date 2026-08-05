@@ -59,6 +59,14 @@ public static class DependencyInjection
         ;
 
 
+        var searchSection = configuration.GetSection(AzureAISearchOptions.SectionName);
+
+        services
+            .AddOptions<AzureAISearchOptions>()
+            .Bind(searchSection)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddScoped<IChatService, ChatService>();
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -82,6 +90,10 @@ public static class DependencyInjection
         services.AddScoped<IPdfReaderService, PdfReaderService>();
         services.AddScoped<ITextChunkingService, TextChunkingService>();
         services.AddScoped<IEmbeddingService, EmbeddingService>();
+
+        services.AddScoped<IAzureAISearchService, AzureAISearchService>();
+
+        services.AddScoped<IRagService, RagService>();
 
         return services;
     }
