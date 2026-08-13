@@ -2,6 +2,7 @@ using EnterpriseAppAI.Application.AI.Interfaces;
 using EnterpriseAppAI.Application.Interfaces.Identity;
 using EnterpriseAppAI.Application.Interfaces.Persistence;
 using EnterpriseAppAI.Infrastructure.AI.Abstractions;
+using EnterpriseAppAI.Infrastructure.AI.MCP;
 using EnterpriseAppAI.Infrastructure.AI.Options;
 using EnterpriseAppAI.Infrastructure.AI.Plugins;
 using EnterpriseAppAI.Infrastructure.AI.RAG.Interfaces;
@@ -67,7 +68,8 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddScoped<IChatService, ChatService>();
+
+
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -92,6 +94,8 @@ public static class DependencyInjection
         services.AddScoped<IEmbeddingService, EmbeddingService>();
 
         services.AddScoped<IAzureAISearchService, AzureAISearchService>();
+
+        services.AddScoped<HRAssistantPromptService>();
 
         services.AddScoped<IRagService, RagService>();
 

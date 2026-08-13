@@ -7,4 +7,8 @@ public class ChatResponse
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? Model { get; set; }
     public int? TokensUsed { get; set; }
+
+    public string? Source { get; set; }
+
+    public string? SourceName { get; set; }
 }

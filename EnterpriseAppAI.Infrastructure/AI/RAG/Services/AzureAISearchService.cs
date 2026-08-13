@@ -268,4 +268,43 @@ public sealed class AzureAISearchService : IAzureAISearchService
 
         return documents;
     }
+
+    public async Task<IReadOnlyList<DocumentChunk>> GetDocumentChunksAsync(
+    string documentName,
+    CancellationToken cancellationToken = default)
+    {
+        var client = CreateSearchClient();
+
+        var options = new SearchOptions
+        {
+            Filter = $"{nameof(DocumentChunk.DocumentName)} eq '{documentName}'",
+            Size = 1000,
+            OrderBy =
+        {
+            $"{nameof(DocumentChunk.ChunkNumber)} asc"
+        }
+        };
+
+        var response = await client.SearchAsync<DocumentChunk>(
+            searchText: null,
+            options: options,
+            cancellationToken: cancellationToken);
+
+        var documents = new List<DocumentChunk>();
+
+        await foreach (var result in response.Value.GetResultsAsync())
+        {
+            if (result.Document != null)
+            {
+                documents.Add(result.Document);
+            }
+        }
+
+        _logger.LogInformation(
+            "Retrieved {Count} chunks for document {DocumentName}.",
+            documents.Count,
+            documentName);
+
+        return documents;
+    }
 }

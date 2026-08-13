@@ -1,23 +1,21 @@
 ﻿using EnterpriseAppAI.Infrastructure.AI.RAG.Interfaces;
 using EnterpriseAppAI.Infrastructure.AI.RAG.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
 
 namespace EnterpriseAppAI.Infrastructure.AI.RAG.Services;
 
 public sealed class RagService : IRagService
 {
     private readonly IAzureAISearchService _searchService;
-    private readonly Kernel _kernel;
     private readonly ILogger<RagService> _logger;
-
+    private readonly HRAssistantPromptService _hrAssistantPromptService;
     public RagService(
         IAzureAISearchService searchService,
-        Kernel kernel,
+        HRAssistantPromptService hrAssistantPromptService,
         ILogger<RagService> logger)
     {
         _searchService = searchService;
-        _kernel = kernel;
+        _hrAssistantPromptService = hrAssistantPromptService;
         _logger = logger;
     }
 
@@ -31,7 +29,7 @@ public sealed class RagService : IRagService
         question,
         cancellationToken);
 
-        _logger.LogInformation("Retrieved {ChunkCount} chunks from Azure AI Search.",chunks.Count);
+        _logger.LogInformation("Retrieved {ChunkCount} chunks from Azure AI Search.", chunks.Count);
 
         if (chunks.Count == 0)
         {
@@ -42,14 +40,9 @@ public sealed class RagService : IRagService
             };
         }
 
-
-        var prompt = BuildPrompt(context, question);
-
         _logger.LogInformation("Sending prompt to Azure OpenAI.");
 
-        var response = await _kernel.InvokePromptAsync(
-                        prompt,
-                        cancellationToken: cancellationToken);
+        var response = await _hrAssistantPromptService.InvokeAsync(context, question, cancellationToken);
 
         _logger.LogInformation("Answer generated successfully.");
 
@@ -83,22 +76,5 @@ public sealed class RagService : IRagService
             chunks.Select(c => c.Content));
 
         return (context, chunks);
-    }
-
-    private string BuildPrompt(string context, string question)
-    {
-        return $"""
-                You are an intelligent HR assistant.
-                Answer the user's question using ONLY the context provided below.
-                If the answer is not available in the context, reply:
-                "I couldn't find this information in the HR policy."
-                ------------------------
-                Context:
-                {context}
-                ------------------------
-                Question:
-                {question}
-                Answer:
-            """;
     }
 }

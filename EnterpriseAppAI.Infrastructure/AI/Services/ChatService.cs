@@ -2,10 +2,13 @@ namespace EnterpriseAppAI.Infrastructure.AI.Services;
 
 using EnterpriseAppAI.Application.AI.Interfaces;
 using EnterpriseAppAI.Application.AI.Models;
+using EnterpriseAppAI.Infrastructure.AI.MCP;
 using EnterpriseAppAI.Infrastructure.AI.Plugins;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using ModelContextProtocol.Protocol;
 
 /// <summary>
 /// ChatService orchestrates AI chat processing using Semantic Kernel.
@@ -24,15 +27,18 @@ public class ChatService : IChatService
     private readonly Kernel _kernel;
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly McpSemanticKernelService _mcpSemanticKernelService;
 
     public ChatService(
         ILogger<ChatService> logger,
         Kernel kernel,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        McpSemanticKernelService mcpSemanticKernelService)
     {
         _logger = logger;
         _kernel = kernel;
         _serviceProvider = serviceProvider;
+        _mcpSemanticKernelService = mcpSemanticKernelService;
     }
 
 
@@ -61,9 +67,11 @@ public class ChatService : IChatService
         }
 
         history.AddUserMessage(request.UserMessage);
- 
+
 
         _kernel.RegisterPlugins(_serviceProvider);
+
+        await _mcpSemanticKernelService.AddMcpPluginsAsync( _kernel, cancellationToken);
 
         // Log loaded plugins
         _logger.LogInformation(
@@ -75,6 +83,14 @@ public class ChatService : IChatService
 
         var chatCompletionService =
             _kernel.GetRequiredService<IChatCompletionService>();
+
+        // MCP resources + prompts
+        var mcpContextPlugin =
+            _serviceProvider.GetRequiredService<McpContextPlugin>();
+
+        _kernel.Plugins.AddFromObject(
+            mcpContextPlugin,
+            "McpContext");
 
         var response =
             await chatCompletionService.GetChatMessageContentAsync(

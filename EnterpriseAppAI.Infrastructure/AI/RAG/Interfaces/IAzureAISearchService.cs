@@ -28,4 +28,8 @@ public interface IAzureAISearchService
         string query,
         int top = 5,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<DocumentChunk>> GetDocumentChunksAsync(
+     string documentName,
+     CancellationToken cancellationToken = default);
 }

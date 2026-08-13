@@ -1,5 +1,7 @@
 using EnterpriseAppAI.API.Middleware;
 using EnterpriseAppAI.Application.DependencyInjection;
+using EnterpriseAppAI.Infrastructure.AI.MCP;
+using EnterpriseAppAI.Infrastructure.AI.DependencyInjection;
 using EnterpriseAppAI.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +18,9 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddMcpClient(builder.Configuration);
+builder.Services.AddAI(builder.Configuration);
+
 
 // Global exception handling -> RFC7807 ProblemDetails
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
