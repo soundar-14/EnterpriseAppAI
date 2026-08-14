@@ -57,6 +57,50 @@ foreach (var content in result.Content)
     Console.WriteLine(content);
 }
 
+// ============================================================
+// JIRA MCP TOOL
+// ============================================================
+
+Console.WriteLine();
+Console.WriteLine("Calling get_jira_issue...");
+
+var jiraResult = await client.CallToolAsync(
+    "get_jira_issue",
+    new Dictionary<string, object?>
+    {
+        ["issueKey"] = "EPMCDMETST-42534"
+    });
+
+Console.WriteLine();
+Console.WriteLine("Jira Tool Result:");
+
+foreach (var content in jiraResult.Content)
+{
+    Console.WriteLine(content);
+}
+
+ //============================================================
+ //GITHUB MCP TOOL
+ //============================================================
+
+Console.WriteLine();
+Console.WriteLine("Calling GitHub MCP tool...");
+
+var githubResult = await client.CallToolAsync(
+    "get_git_hub_repository",
+    new Dictionary<string, object?>
+    {
+        ["owner"] = "soundar-14",
+        ["repository"] = "FeatureGate.App"
+    });
+
+Console.WriteLine();
+Console.WriteLine("GitHub Result:");
+
+foreach (var content in githubResult.Content)
+{
+    Console.WriteLine(content);
+}
 
 Console.WriteLine();
 Console.WriteLine("Available MCP Resources:");
